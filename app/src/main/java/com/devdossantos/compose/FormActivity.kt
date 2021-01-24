@@ -1,12 +1,10 @@
 package com.devdossantos.compose
 
-import android.content.Intent
-import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
@@ -14,46 +12,39 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 
-
-class MainActivity : AppCompatActivity() {
+class FormActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
-            MainContent()
-        }
-
-    }
-
-    @Composable
-    private fun MainContent() {
-        Scaffold(
-            topBar = { MainTopBar() },
-            floatingActionButton = { MainFav() }
-        ) {
-
+            FormContent()
         }
     }
 
     @Composable
-    private fun MainTopBar() {
+    private fun FormContent() {
+        Scaffold(topBar = {FormTopBar()}) {
+            
+        }
+    }
+
+    @Composable
+    private fun FormTopBar() {
         TopAppBar(
-            title = { Text(stringResource(id = R.string.app_name)) },
+            title = { Text(stringResource(id = R.string.add_title)) },
+            navigationIcon = {
+                IconButton(onClick = { onBackPressed() }) {
+                    Icon(imageVector = Icons.Default.ArrowBack)
+                }
+            },
             backgroundColor = colorResource(id = R.color.purple_500),
             contentColor = Color.White
         )
     }
 
+    @Preview
     @Composable
-    private fun MainFav() {
-        FloatingActionButton(onClick = {
-            showAddForm()
-        }) {
-            Icon(imageVector = Icons.Filled.Add)
-        }
-    }
-
-    private fun showAddForm() {
-        startActivity(Intent(this, FormActivity::class.java))
+    private fun DefaultPreview() {
+        FormContent()
     }
 }
-
