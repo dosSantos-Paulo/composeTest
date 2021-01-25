@@ -1,5 +1,6 @@
 package com.devdossantos.compose
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -21,6 +22,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class FormActivity : AppCompatActivity() {
 
@@ -60,7 +63,9 @@ class FormActivity : AppCompatActivity() {
         val nameState = remember { mutableStateOf("") }
         val emailState = remember { mutableStateOf("") }
         val roles = resources.getStringArray(R.array.roles)
-
+        val selectedRoleName =
+            roles.firstOrNull { it == _addUserState.value?.role } ?: "Desconhecido"
+        val isRoleOpen = remember { mutableStateOf(false) }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -86,16 +91,26 @@ class FormActivity : AppCompatActivity() {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = { /*TODO*/ }) {
+                        TextButton(onClick = { isRoleOpen.value = true }) {
                             Text(text = stringResource(id = R.string.role_select))
                         }
 
+                        Text(text = selectedRoleName)
+
                     }
-                }, expanded = false, onDismissRequest = { /*TODO*/ }) {
+                },
+                expanded = isRoleOpen.value,
+                onDismissRequest = { /*TODO*/ }) {
 
-                DropdownMenuItem(onClick = { /*TODO*/ }) {
-
+                for (role in roles) {
+                    DropdownMenuItem(onClick = {
+                        isRoleOpen.value = false
+                        _addUserState.value = _addUserState.value?.copy(role = role)
+                    }) {
+                        Text(text = role)
+                    }
                 }
+
             }
 
             Button(onClick = { onAddTapade() }) {
@@ -105,7 +120,20 @@ class FormActivity : AppCompatActivity() {
     }
 
     private fun onAddTapade() {
-        val userState = _addUserState.value?: return
+        val userState = _addUserState.value ?: return
+        if (
+            userState.name.isNotEmpty() &&
+            userState.email.isNotEmpty() &&
+            userState.role.isNotEmpty()
+        ) {
+            lifecycleScope.launch{
+                setResult(RESULT_OK, Intent().apply {
+                    putExtra("USER_STATE", userState)
+                })
+            }
+            finish()
+
+        }
         Log.d("USER_STATE", "$userState")
     }
 

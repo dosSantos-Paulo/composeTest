@@ -2,26 +2,35 @@ package com.devdossantos.compose
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 
 
 class MainActivity : AppCompatActivity() {
+    private val reponseState = mutableStateOf("")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MainContent()
         }
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK){
+            val response = data?.getParcelableExtra<AddUserState>("USER_STATE")
+            reponseState.value = response.toString()
+        }
     }
 
     @Composable
@@ -31,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             floatingActionButton = { MainFav() }
         ) {
 
+            Text(text = reponseState.value)
         }
     }
 
@@ -53,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showAddForm() {
-        startActivity(Intent(this, FormActivity::class.java))
+        startActivityForResult(Intent(this, FormActivity::class.java), 100)
     }
 }
 
