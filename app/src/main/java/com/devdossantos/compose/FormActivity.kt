@@ -2,6 +2,7 @@ package com.devdossantos.compose
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,8 +20,12 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.MutableLiveData
 
 class FormActivity : AppCompatActivity() {
+
+    private val _addUserState = MutableLiveData(AddUserState())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,17 +57,28 @@ class FormActivity : AppCompatActivity() {
 
     @Composable
     private fun FormFields() {
+        val nameState = remember { mutableStateOf("") }
+        val emailState = remember { mutableStateOf("") }
+        val roles = resources.getStringArray(R.array.roles)
+
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            OutlinedTextField(value = "",
-                onValueChange = {},
+            OutlinedTextField(value = nameState.value,
+                onValueChange = {
+                    nameState.value = it
+                    _addUserState.value = _addUserState.value?.copy(name = it)
+                },
                 label = { Text(text = stringResource(id = R.string.name_hint)) })
 
-            OutlinedTextField(value = "",
-                onValueChange = {},
+            OutlinedTextField(value = emailState.value,
+                onValueChange = {
+                    emailState.value = it
+                    _addUserState.value = _addUserState.value?.copy(email = it)
+                },
                 label = { Text(text = stringResource(id = R.string.email_hint)) })
 
             DropdownMenu(
@@ -72,7 +90,6 @@ class FormActivity : AppCompatActivity() {
                             Text(text = stringResource(id = R.string.role_select))
                         }
 
-                        Text(text = "Desconhecido")
                     }
                 }, expanded = false, onDismissRequest = { /*TODO*/ }) {
 
@@ -81,13 +98,17 @@ class FormActivity : AppCompatActivity() {
                 }
             }
 
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { onAddTapade() }) {
                 Text(text = stringResource(id = R.string.add_button_text))
             }
         }
     }
 
-    @Preview
+    private fun onAddTapade() {
+        val userState = _addUserState.value?: return
+        Log.d("USER_STATE", "$userState")
+    }
+
     @Composable
     private fun DefaultPreview() {
         FormContent()
